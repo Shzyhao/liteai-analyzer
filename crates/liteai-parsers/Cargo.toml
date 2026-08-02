@@ -1,0 +1,16 @@
+[package]
+name = "liteai-parsers"
+version.workspace = true
+edition.workspace = true
+description = "AI 文件分析助手 · 文件解析器（txt/xlsx/docx/pdf）"
+
+[dependencies]
+liteai-core = { path = "../liteai-core" }
+calamine = "0.26"
+pdf-extract = "0.7"
+zip = { version = "2", default-features = false }
+quick-xml = "0.37"
+encoding_rs = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

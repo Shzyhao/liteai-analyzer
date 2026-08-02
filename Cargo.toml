@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/liteai-core",
+    "crates/liteai-parsers",
+    "crates/liteai-model",
+    "crates/liteai-output",
+    "crates/liteai-config",
+    "crates/liteai-cli",
+    "src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = "thin"

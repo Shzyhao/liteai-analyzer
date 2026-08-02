@@ -1,0 +1,15 @@
+[package]
+name = "liteai-core"
+version.workspace = true
+edition.workspace = true
+description = "AI 文件分析助手 · 领域模型与编排管线（零依赖 tauri，可单测）"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+async-trait = "0.1"
+thiserror = "1"
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

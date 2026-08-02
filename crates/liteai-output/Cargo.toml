@@ -1,0 +1,12 @@
+[package]
+name = "liteai-output"
+version.workspace = true
+edition.workspace = true
+description = "AI 文件分析助手 · 结果序列化器（Markdown / Word）"
+
+[dependencies]
+liteai-core = { path = "../liteai-core" }
+docx-rs = "0.4"
+
+[dev-dependencies]
+tempfile = "3"

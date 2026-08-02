@@ -1,0 +1,28 @@
+[package]
+name = "liteai-app"
+version = "0.1.0"
+description = "AI 文件分析助手（个人版 MVP）"
+authors = ["liteai"]
+edition = "2021"
+
+[lib]
+name = "liteai_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["custom-protocol"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+winreg = "0.55"
+
+liteai-core = { path = "../crates/liteai-core" }
+liteai-parsers = { path = "../crates/liteai-parsers" }
+liteai-model = { path = "../crates/liteai-model" }
+liteai-output = { path = "../crates/liteai-output" }
+liteai-config = { path = "../crates/liteai-config" }

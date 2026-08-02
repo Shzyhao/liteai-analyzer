@@ -1,0 +1,13 @@
+[package]
+name = "liteai-cli"
+version.workspace = true
+edition.workspace = true
+description = "AI 文件分析助手 · CLI（端到端冒烟验证）"
+
+[dependencies]
+liteai-core = { path = "../liteai-core" }
+liteai-parsers = { path = "../liteai-parsers" }
+liteai-model = { path = "../liteai-model" }
+liteai-output = { path = "../liteai-output" }
+liteai-config = { path = "../liteai-config" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

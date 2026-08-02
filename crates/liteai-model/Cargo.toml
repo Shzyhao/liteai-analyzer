@@ -1,0 +1,17 @@
+[package]
+name = "liteai-model"
+version.workspace = true
+edition.workspace = true
+description = "OpenAI 兼容模型客户端（SSE 流式 / 余额 / 连通性测试）"
+
+[dependencies]
+liteai-core = { path = "../liteai-core" }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+futures-util = "0.3"
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+httpmock = "0.7"
