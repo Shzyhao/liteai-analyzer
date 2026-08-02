@@ -59,7 +59,16 @@ npm run tauri dev
 npm run tauri build
 ```
 
-详见 [开发运行指南.md](开发运行指南.md)。
+详见 [开发运行指南.md](开发运行指南.md)。English version: [README.en.md](README.en.md).
+
+## 下载
+
+[![GitHub Release](https://img.shields.io/github/v/release/Shzyhao/liteai-analyzer)](https://github.com/Shzyhao/liteai-analyzer/releases/latest)
+
+- 📦 **便携版**（单文件 exe，免安装，直接运行）：[liteai-app.exe](https://github.com/Shzyhao/liteai-analyzer/releases/latest)
+- 🖥️ **安装版**（NSIS 安装包，装到 Program Files）：[LiteAI_*_x64-setup.exe](https://github.com/Shzyhao/liteai-analyzer/releases/latest)
+
+> 提示：Win10 用户若运行 exe 提示缺 WebView2，请先安装 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。Win11 自带。
 
 ## 许可证
 
