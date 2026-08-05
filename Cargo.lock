@@ -2527,7 +2527,7 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "liteai-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "liteai-config",
  "liteai-core",
@@ -2546,7 +2546,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "liteai-config",
  "liteai-core",
@@ -2558,7 +2558,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "aes-gcm",
  "base64 0.22.1",
@@ -2574,7 +2574,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "serde",
@@ -2586,7 +2586,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-model"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "futures-util",
@@ -2600,7 +2600,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-output"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "docx-rs",
  "liteai-core",
@@ -2610,7 +2610,7 @@ dependencies = [
 
 [[package]]
 name = "liteai-parsers"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "calamine",
  "encoding_rs",
