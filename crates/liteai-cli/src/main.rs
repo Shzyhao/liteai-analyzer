@@ -24,6 +24,7 @@ async fn main() {
     let mut template_id = "summary".to_string();
     let mut out_dir: Option<std::path::PathBuf> = None;
     let mut export_docx = false;
+    let mut export_xlsx = false;
     let mut files = Vec::new();
 
     let mut i = 2;
@@ -34,6 +35,7 @@ async fn main() {
             "--template" => { i += 1; template_id = args[i].clone(); }
             "--output-dir" => { i += 1; out_dir = Some(args[i].clone().into()); }
             "--docx" => export_docx = true,
+            "--xlsx" => export_xlsx = true,
             s if s.starts_with('-') => { eprintln!("未知参数: {s}"); std::process::exit(2); }
             _ => files.push(args[i].clone()),
         }
@@ -74,6 +76,7 @@ async fn main() {
         model: Box::new(liteai_model::OpenAiClient::new(key, base_url.clone())),
         md_serializer: Box::new(liteai_output::MarkdownSerializer),
         docx_serializer: Some(Box::new(liteai_output::DocxSerializer)),
+        xlsx_serializer: Some(Box::new(liteai_output::XlsxSerializer)),
         prompt: PromptBuilder::new(tpl.system, tpl.prompt),
     };
 
@@ -81,6 +84,7 @@ async fn main() {
         mode: OutputMode::Both,
         out_dir,
         export_docx,
+        export_xlsx,
     };
     let cancel = Arc::new(AtomicBool::new(false));
 

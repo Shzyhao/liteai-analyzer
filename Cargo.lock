@@ -2604,6 +2604,7 @@ version = "0.1.0"
 dependencies = [
  "docx-rs",
  "liteai-core",
+ "rust_xlsxwriter",
  "tempfile",
 ]
 
@@ -3783,6 +3784,15 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rust_xlsxwriter"
+version = "0.77.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c1ba1186cc2b2d0710edd3420d12cbb247c513063d568ca9e5bf52e20068abfb"
+dependencies = [
+ "zip 2.4.2",
 ]
 
 [[package]]

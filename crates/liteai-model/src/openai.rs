@@ -87,21 +87,28 @@ impl ModelClient for OpenAiClient {
     }
 
     async fn check_balance(&self) -> Result<BalanceInfo, ModelError> {
-        // DeepSeek 特有：GET /user/balance
-        let url = format!("{}/user/balance", self.base_url.trim_end_matches('/'));
-        let resp = self
-            .http
-            .get(url)
-            .bearer_auth(&self.key)
-            .send()
-            .await
-            .map_err(|e| ModelError::Network(e.to_string()))?;
-        let status = resp.status();
-        if !status.is_success() {
-            let text = resp.text().await.unwrap_or_default();
-            return Err(ModelError::Http { status: status.as_u16(), body: text });
+        // 平台感知：余额接口是平台特有的；不认识的平台优雅降级（不报错）。
+        // 任何失败（网络/HTTP/解析）都返回 is_available=false，绝不阻塞主流程。
+        let provider = detect_provider(&self.base_url);
+        let endpoint = match provider {
+            "deepseek" => "/user/balance",
+            "moonshot" => "/v1/users/me/balance",
+            _ => {
+                return Ok(BalanceInfo { is_available: false, balance_infos: vec![] });
+            }
+        };
+        let url = format!("{}{endpoint}", self.base_url.trim_end_matches('/'));
+        let resp = match self.http.get(url).bearer_auth(&self.key).send().await {
+            Ok(r) => r,
+            Err(_) => return Ok(BalanceInfo { is_available: false, balance_infos: vec![] }),
+        };
+        if !resp.status().is_success() {
+            return Ok(BalanceInfo { is_available: false, balance_infos: vec![] });
         }
-        let v: serde_json::Value = resp.json().await.map_err(|e| ModelError::Stream(e.to_string()))?;
+        let v: serde_json::Value = match resp.json().await {
+            Ok(v) => v,
+            Err(_) => return Ok(BalanceInfo { is_available: false, balance_infos: vec![] }),
+        };
         let mut infos = Vec::new();
         if let Some(arr) = v.get("balance_infos").and_then(|x| x.as_array()) {
             for item in arr {
@@ -141,6 +148,18 @@ impl ModelClient for OpenAiClient {
             return Err(ModelError::Http { status: status.as_u16(), body: text });
         }
         Ok(())
+    }
+}
+
+/// 根据 Base URL 识别平台（仅用于余额接口选择）。
+fn detect_provider(base_url: &str) -> &'static str {
+    let b = base_url.to_lowercase();
+    if b.contains("deepseek") {
+        "deepseek"
+    } else if b.contains("moonshot") || b.contains("kimi") {
+        "moonshot"
+    } else {
+        "generic"
     }
 }
 
@@ -224,16 +243,33 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn balance_parses() {
+    async fn balance_parses_for_deepseek() {
         let server = MockServer::start();
         server.mock(|when, then| {
-            when.method(GET).path("/user/balance");
+            when.method(GET).path("/deepseek/user/balance");
             then.status(200).body(r#"{"is_available":true,"balance_infos":[{"currency":"CNY","total_balance":"110.00"}]}"#);
         });
-        let client = OpenAiClient::new("sk-test", format!("http://{}", server.address()));
+        // base_url 含 "deepseek" 才会走余额接口
+        let base = format!("http://127.0.0.1:{}/deepseek", server.port());
+        let client = OpenAiClient::new("sk-test", base);
         let info = client.check_balance().await.unwrap();
         assert!(info.is_available);
         assert_eq!(info.balance_infos[0].currency, "CNY");
+    }
+
+    #[tokio::test]
+    async fn balance_generic_platform_degrades() {
+        let server = MockServer::start();
+        server.mock(|when, then| {
+            when.method(GET).path_contains("/user/balance");
+            then.status(500).body("unreachable");
+        });
+        // 通用平台（base_url 不含已知关键字）→ 不发请求，优雅降级
+        let base = format!("http://127.0.0.1:{}", server.port());
+        let client = OpenAiClient::new("sk-test", base);
+        let info = client.check_balance().await.unwrap();
+        assert!(!info.is_available);
+        assert!(info.balance_infos.is_empty());
     }
 
     #[tokio::test]

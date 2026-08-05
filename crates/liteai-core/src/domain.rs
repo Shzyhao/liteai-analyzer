@@ -111,7 +111,7 @@ pub enum PipelineEvent {
     Started { total: usize },
     Parsing { index: usize, file: String },
     Tokens { text: String },
-    FileDone { index: usize, output_path: Option<String> },
+    FileDone { index: usize, output_path: Option<String>, usage: Option<ChatUsage> },
     Done { summary: String },
     Error { file: Option<String>, message: String },
     Cancelled,

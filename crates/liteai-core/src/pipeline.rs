@@ -20,6 +20,7 @@ pub struct OutputConfig {
     pub mode: OutputMode,
     pub out_dir: Option<PathBuf>,
     pub export_docx: bool,
+    pub export_xlsx: bool,
 }
 
 pub struct AnalysisPipeline {
@@ -27,6 +28,7 @@ pub struct AnalysisPipeline {
     pub model: Box<dyn ModelClient>,
     pub md_serializer: Box<dyn Serializer>,
     pub docx_serializer: Option<Box<dyn Serializer>>,
+    pub xlsx_serializer: Option<Box<dyn Serializer>>,
     pub prompt: PromptBuilder,
 }
 
@@ -120,10 +122,10 @@ impl AnalysisPipeline {
                 index,
                 file,
                 analysis: full,
-                usage,
+                usage: usage.clone(),
                 output_path: output_path.clone(),
             });
-            emit(PipelineEvent::FileDone { index, output_path: output_path.map(|p| p.display().to_string()) })?;
+            emit(PipelineEvent::FileDone { index, output_path: output_path.map(|p| p.display().to_string()), usage })?;
         }
 
         let summary = if outcome.cancelled {
@@ -163,6 +165,14 @@ impl AnalysisPipeline {
             if let Some(docx) = &self.docx_serializer {
                 if let Err(e) = docx.serialize(doc, &dir) {
                     emit(PipelineEvent::Error { file: Some(doc.source_name.clone()), message: format!("导出 Word 失败: {e}") })?;
+                }
+            }
+        }
+        // 可选额外导出 xlsx
+        if out_cfg.export_xlsx {
+            if let Some(xlsx) = &self.xlsx_serializer {
+                if let Err(e) = xlsx.serialize(doc, &dir) {
+                    emit(PipelineEvent::Error { file: Some(doc.source_name.clone()), message: format!("导出 Excel 失败: {e}") })?;
                 }
             }
         }
@@ -233,6 +243,7 @@ mod tests {
             model: Box::new(FakeModel),
             md_serializer: Box::new(MdSerializer),
             docx_serializer: None,
+            xlsx_serializer: None,
             prompt: PromptBuilder::default(),
         }
     }
@@ -249,7 +260,7 @@ mod tests {
             .analyze_batch(
                 files,
                 &ModelConfig { base_url: "https://api.deepseek.com".into(), model: "deepseek-chat".into() },
-                &OutputConfig { mode: OutputMode::Both, out_dir: Some(dir.path().to_path_buf()), export_docx: false },
+                &OutputConfig { mode: OutputMode::Both, out_dir: Some(dir.path().to_path_buf()), export_docx: false, export_xlsx: false },
                 &mut |ev| {
                     events.push(ev);
                     Ok(())
