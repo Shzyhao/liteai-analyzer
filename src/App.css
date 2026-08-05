@@ -345,6 +345,27 @@ body,
   margin-top: 8px;
 }
 
+/* 右键菜单状态横幅 */
+.status-banner {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.status-banner.ok {
+  background: #e5f6ee;
+  color: var(--ok);
+  border: 1px solid #b7e4cf;
+}
+
+.status-banner.off {
+  background: #f0f1f4;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
 .hint {
   color: var(--muted);
   font-size: 12px;

@@ -80,18 +80,26 @@ impl AnalysisPipeline {
                 }
             };
 
-            // 2) 组装请求并流式调用
+            // 2) 组装请求并流式调用（on_token 内也检查取消，实现流式中途立即取消）
             let req = self.prompt.build_request(&model_cfg.base_url, &model_cfg.model, &doc);
             let mut full = String::new();
             let usage = match self
                 .model
                 .stream_chat(&req, &mut |tok: String| {
+                    if is_cancelled(cancel) {
+                        return Err(ModelError::Cancelled);
+                    }
                     full.push_str(&tok);
                     emit(PipelineEvent::Tokens { text: tok }).map_err(|_| ModelError::Cancelled)
                 })
                 .await
             {
                 Ok(u) => Some(u),
+                Err(ModelError::Cancelled) => {
+                    outcome.cancelled = true;
+                    emit(PipelineEvent::Cancelled)?;
+                    break;
+                }
                 Err(e) => {
                     failed += 1;
                     emit(PipelineEvent::Error { file: Some(file.file_name.clone()), message: e.to_string() })?;

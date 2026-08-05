@@ -30,6 +30,9 @@ pub fn run() {
                 .cloned()
                 .collect();
             if !paths.is_empty() {
+                // 第二个实例的 main.rs 会把路径写入 pending.json，但 setup 不会再执行，
+                // 这里直接入队并清掉 pending.json，避免下次启动重复入队。
+                let _ = std::fs::remove_file(liteai_config::default_config_dir().join("pending.json"));
                 app.state::<AppState>().pending.lock().unwrap().extend(paths);
                 let _ = app.emit("queue-updated", ());
                 if let Some(w) = app.webview_windows().values().next() {

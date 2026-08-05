@@ -18,7 +18,7 @@ function basename(p: string): string {
 }
 
 export default function AnalysisView() {
-  const { pending, items, running, summary, activeIndex, loadPending, startAnalysis, cancel } = useQueue();
+  const { pending, items, running, summary, activeIndex, lastPaths, loadPending, startAnalysis, cancel } = useQueue();
 
   useEffect(() => {
     loadPending();
@@ -62,7 +62,11 @@ export default function AnalysisView() {
                   取消
                 </button>
               ) : (
-                <button className="btn" onClick={() => startAnalysis()} disabled={running}>
+                <button
+                  className="btn"
+                  onClick={() => startAnalysis(lastPaths.length ? lastPaths : undefined)}
+                  disabled={running}
+                >
                   重新分析
                 </button>
               )}

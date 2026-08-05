@@ -19,6 +19,7 @@ interface QueueState {
   activeIndex: number | null;
   running: boolean;
   summary: string;
+  lastPaths: string[];
   loadPending: () => Promise<void>;
   startAnalysis: (paths?: string[]) => Promise<void>;
   cancel: () => void;
@@ -35,6 +36,7 @@ export const useQueue = create<QueueState>((set, get) => ({
   activeIndex: null,
   running: false,
   summary: '',
+  lastPaths: [],
 
   loadPending: async () => {
     const pending = await getPending().catch(() => []);
@@ -48,15 +50,18 @@ export const useQueue = create<QueueState>((set, get) => ({
       running: true,
       activeIndex: null,
       summary: '',
+      lastPaths: pathsToRun,
       items: pathsToRun.map((p, i) => ({ index: i, name: basename(p), status: 'queued', text: '' })),
       pending: s.pending.filter((p) => !pathsToRun.includes(p)),
     }));
     try {
+      // analyze_files 命令会立即返回（分析在后台流式进行），
+      // running 需等到 Done/Cancelled 事件到达才结束（见 handleEvent）。
       await analyzeFiles(pathsToRun, (ev) => get().handleEvent(ev));
     } catch (e) {
+      // invoke 直接报错（如未配置 Key）——没有分析开始
       set((s) => ({ summary: String(e), running: false, items: s.items.map((it) => it.status === 'queued' ? { ...it, status: 'error', error: String(e) } : it) }));
     }
-    set({ running: false });
   },
 
   cancel: () => cancelAll().catch(() => {}),
@@ -97,7 +102,7 @@ export const useQueue = create<QueueState>((set, get) => ({
         }));
         break;
       case 'Done':
-        set({ summary: ev.data.summary });
+        set({ summary: ev.data.summary, running: false });
         break;
       case 'Cancelled':
         set({ summary: '已取消', running: false });
